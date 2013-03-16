@@ -45,11 +45,16 @@ open Casanova.StandardLibrary.Core
 
   and [<CasanovaEntity>] ball = {
     Position: Rule<Vector2<m>>
+    Velocity: Rule<Vector2<m/s>>
     Life : Var<float32>
     Sprite : DrawableSprite
-
   } with
     static member Position'(self:ball,dt:float32<s>) = !self.Position
+    static member Velocity'(world:World,self:ball,dt:float32<s>) = 
+      if self.Position > 200.f<m> || self.Position < -200.f<m> then
+        -self.Velocity
+      else
+        self.Velocity
     static member SpritePosition'(self:ball) = !self.Position * 1.0f<pixel/m>
     
    //ADDED THE WALLS HERE
