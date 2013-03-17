@@ -21,6 +21,7 @@ open Casanova.StandardLibrary.Core
       ball: ball
       wall: wall
       wall2: wall2
+      middle: middle
       left: Rule<int>
       right: Rule<int>
       add: Rule<int>
@@ -32,23 +33,23 @@ open Casanova.StandardLibrary.Core
      member world.ScreenSize = Vector2<m>.One * 500.0f
      member world.ScreenSize2 = Vector2<m>.One * -500.0f
      static member ScreenSize3 = Vector2<m>.One * 500.0f
-     static member ScoreTextStringRule(world:World,dt:float32<s>) = (string !world.left + " | " + string !world.right) 
+     static member ScoreTextStringRule(world:World,dt:float32<s>) = (string !world.left + "                     " + string !world.right) 
 
      static member leftRule(world:World,dt:float32<s>) = 
         let tempscore = world.left.Value
         //let tempscore2 = 1
 
-        if world.ball.Position.Value.X > world.ScreenSize.X then !world.left + 1
+        if   world.ball.Position.Value.X > (world.wall.Position.Value.X) && world.ball.Position.Value.X < (world.wall.Position.Value.X + 1.8f<m>) then !world.left + 1
         else !world.left + 0
 
        // let temp2 = world.left
 
-        if world.left.Value.Equals(tempscore + 1) then world.left.Value + 1
-        else !world.left + 0
+       // if world.left.Value.Equals(tempscore + 1) then world.left.Value + 1
+        //else !world.left + 0
         //if !world.ball.Position.X < world.ScreenSize2.X then world.left
 
      static member rightRule(world:World,dt:float32<s>) = 
-        if world.ball.Position.Value.X < world.ScreenSize2.X + 1.5f<m> then !world.right + 1
+        if world.ball.Position.Value.X < world.wall2.Position.Value.X && world.ball.Position.Value.X > (world.wall2.Position.Value.X - 1.8f<m>) then !world.right + 1
         else !world.right + 0
 
     // member world.p2Size = Vector2<m>(450.0f<m>, 0.0f<m>)
@@ -190,6 +191,14 @@ open Casanova.StandardLibrary.Core
     static member Position'(self:wall2, dt:float32<s>) = !self.Position
     static member SpritePosition'(self:wall2) = !self.Position * 1.0f<pixel/m>
 
+   and [<CasanovaEntity>] middle = {
+        Position : Rule<Vector2<m>>
+        Sprite : DrawableSprite
+
+    } with
+    static member Position'(self:middle, dt:float32<s>) = !self.Position
+    static member SpritePosition'(self:middle) = !self.Position * 1.0f<pixel/m>
+
 
 
 
@@ -200,7 +209,7 @@ open Casanova.StandardLibrary.Core
       left = Rule.Create(0)
       right = Rule.Create(0)
       add = Rule.Create(1)
-      ScoreText = DrawableText.Create(game.default_layer, @"arial.xnb", Vector2<m>(-World.ScreenSize3.X + 50.0f<m>, -World.ScreenSize3.Y + 80.0f<m>) * 1.0f<pixel/m>, Vector2<pixel>.Zero, "0", Color.White, Vector2<pixel>.One * 50.f)
+      ScoreText = DrawableText.Create(game.default_layer, @"arial.xnb", Vector2<m>(-World.ScreenSize3.X + 235.0f<m>, -World.ScreenSize3.Y + 50.0f<m>) * 1.0f<pixel/m>, Vector2<pixel>.Zero, "0", Color.White, Vector2<pixel>.One * 100.f)
 
       p1 = 
         {
@@ -231,12 +240,18 @@ open Casanova.StandardLibrary.Core
           Sprite   = DrawableSprite.Create(game.default_layer, Vector2<pixel>.One, Vector2<pixel>.One * 1200.0f, @"blocker")
         }
 
+      middle = 
+        {
+          Position = Rule.Create(Vector2<m>(0.0f<m>, 0.0f<m>))
+          Sprite   = DrawableSprite.Create(game.default_layer, Vector2<pixel>.One, Vector2<pixel>.One * 800.0f, @"middle")
+        }
+
       ball = 
       {
           Position = Rule.Create(Vector2<m>(0.0f<m>, 0.0f<m>))
-          Sprite   = DrawableSprite.Create(game.default_layer, Vector2<pixel>.One, Vector2<pixel>.One * 30.0f, @"ball")
+          Sprite   = DrawableSprite.Create(game.default_layer, Vector2<pixel>.One, Vector2<pixel>.One * 22.0f, @"ball")
           Life = Var.Create(1.0f)
-          Velocity = Rule.Create(Vector2<m/s>(1.0f<m/s>, 3.0f<m/s>))
+          Velocity = Rule.Create(Vector2<m/s>(1.3f<m/s>, 2.0f<m/s>))
       }
     }
   let inline (!) x = immediate_lookup x
@@ -257,6 +272,6 @@ open Casanova.StandardLibrary.Core
 
 [<EntryPoint>]
 let main argv = 
-  use game = Game.Create(start_game, 1024, 600, false, "Pong in Casanova!")
+  use game = Game.Create(start_game, 1024, 600, true, "Pong in Casanova!")
   game.Run()
   0
