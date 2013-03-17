@@ -23,14 +23,20 @@ open Casanova.StandardLibrary.Core
       wall2: wall2
 
     } with
-
+   //The limits of the wall
+   ////////////////////////
      member world.ScreenSize = Vector2<m>.One * 500.0f
      member world.ScreenSize2 = Vector2<m>.One * -500.0f
 
+
+   //Paddle 1
+   /////////////////////////////////////////////////////////////////
     and [<CasanovaEntity>] p1 = {
          Position : Rule<Vector2<m>>
          Velocity : Rule<Vector2<m/s>>
          Sprite   : DrawableSprite
+//         DestroyBall : DestroyBall
+
     } with
       static member PositionRule(world:World,self:p1,dt:float32<s>)=
       if(!self.Position).Y < world.ScreenSize2.Y then
@@ -44,7 +50,12 @@ open Casanova.StandardLibrary.Core
       static member Velocity'(self:p1,dt:float32<s>) = !self.Velocity * 0.9f
       static member SpritePosition'(self:p1) = !self.Position * 1.0f<pixel/m>
       static member ScreenSize = Vector2<m>.One * 500.0f
+ 
+ /////////////////////////////////////////////////////////////////////////////////////////
 
+
+ //Paddle 2
+ //////////////////////////////////
     and [<CasanovaEntity>] p2 = {
          Position : Rule<Vector2<m>>
          Velocity : Rule<Vector2<m/s>>
@@ -61,36 +72,63 @@ open Casanova.StandardLibrary.Core
       static member SpritePosition'(self:p2) = !self.Position * 1.0f<pixel/m>
       static member ScreenSize = Vector2<m>.One * 500.0f
 
+    /////////////////////////////////////////////////////////////////////////
+
+
+    //Ball entity
+    /////////////////////////
   and [<CasanovaEntity>] ball = {
     Position: Rule<Vector2<m>>
     Life : Var<float32>
     Sprite : DrawableSprite
     Velocity: Rule<Vector2<m/s>>
 
+
   } with
     //static member Position'(self:ball,dt:float32<s>) = !self.Position + dt * Vector2<m/s>.UnitY * 300.0f
     static member SpritePosition'(self:ball) = !self.Position * 1.0f<pixel/m>
+
     static member VelocityRule(world:World,self:ball,dt:float32<s>) = 
     if (!self.Position).Y > world.ScreenSize.Y then
       Vector2<m/s>((!self.Velocity).X, -(!self.Velocity).Y)
+    elif (!self.Position).Y < world.ScreenSize2.Y then
+      Vector2<m/s>((!self.Velocity).X, -(!self.Velocity).Y)
     else
       !self.Velocity
-        
+
+
+     //HERE IS WHERE YOU MOVE THE BALL AND STUFF
     static member SpritePositionRule(self:ball,dt:float32<s>) = 
        !self.Position * Vector2<pixel/m>.One
+
 
     static member PositionRule(world:World,self:ball,dt:float32<s>) = 
     if (!self.Position).Y > world.ScreenSize.Y then
       Vector2<m>((!self.Position).X, world.ScreenSize.Y )
+    elif (!self.Position).Y < world.ScreenSize2.Y then
+      Vector2<m>((!self.Position).X, world.ScreenSize2.Y )
+    elif (!self.Position).X < world.ScreenSize2.X then
+      Vector2<m>(0.0f<m>, 0.0f<m>)
+    elif (!self.Position).X > world.ScreenSize.X then
+      Vector2<m>(0.0f<m>, 0.0f<m>)
     else
-      !self.Position + !self.Velocity * dt * 100.0f
+      !self.Position + !self.Velocity * dt * 200.0f
+
+/////////////////////////////////////////////////////////////////////////////
+
+
    //ADDED THE WALLS HERE
    and [<CasanovaEntity>] wall = {
         Position : Rule<Vector2<m>>
         Sprite : DrawableSprite
+
     } with
     static member Position'(self:wall, dt:float32<s>) = !self.Position
     static member SpritePosition'(self:wall) = !self.Position * 1.0f<pixel/m>
+
+//   and [< Action.Action(Target = "ball");
+//       Action.Transfer(Operation = Action.Operation.Set, From = "", To = "Velocity");
+//       Action.Radius(25.0f) >] DestroyBall = DestroyBall
 
    and [<CasanovaEntity>] wall2 = {
         Position : Rule<Vector2<m>>
@@ -98,6 +136,9 @@ open Casanova.StandardLibrary.Core
     } with
     static member Position'(self:wall2, dt:float32<s>) = !self.Position
     static member SpritePosition'(self:wall2) = !self.Position * 1.0f<pixel/m>
+
+
+
 
  let start_game (game:StartGameArgs) =
 
@@ -107,7 +148,8 @@ open Casanova.StandardLibrary.Core
         {
           Position = Rule.Create(Vector2<m>(-450.0f<m>, 0.0f<m>))
           Velocity = Rule.Create(Vector2<m/s>.Zero)
-          Sprite   = DrawableSprite.Create(game.default_layer, Vector2<pixel>.One, Vector2<pixel>.One * 200.0f, @"p1")
+          Sprite   = DrawableSprite.Create(game.default_layer, Vector2<pixel>.One, Vector2<pixel>.One * 200.0f, @"p1")   
+//          DestroyBall = DestroyBall
         }
 
       p2 = 
@@ -121,6 +163,7 @@ open Casanova.StandardLibrary.Core
         {
           Position = Rule.Create(Vector2<m>(480.0f<m>, 0.0f<m>))
           Sprite   = DrawableSprite.Create(game.default_layer, Vector2<pixel>.One, Vector2<pixel>.One * 1200.0f, @"blocker")
+
         }
 
       wall2 = 
@@ -134,7 +177,7 @@ open Casanova.StandardLibrary.Core
           Position = Rule.Create(Vector2<m>(0.0f<m>, 0.0f<m>))
           Sprite   = DrawableSprite.Create(game.default_layer, Vector2<pixel>.One, Vector2<pixel>.One * 40.0f, @"ball")
           Life = Var.Create(1.0f)
-          Velocity = Rule.Create(Vector2<m/s>(1.0f<m/s>, 0.0f<m/s>))
+          Velocity = Rule.Create(Vector2<m/s>(1.0f<m/s>, 5.0f<m/s>))
       }
     }
   let inline (!) x = immediate_lookup x
