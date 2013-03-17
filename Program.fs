@@ -21,14 +21,26 @@ open Casanova.StandardLibrary.Core
       ball: ball
       wall: wall
       wall2: wall2
-    }
+
+    } with
+
+     member world.ScreenSize = Vector2<m>.One * 500.0f
+     member world.ScreenSize2 = Vector2<m>.One * -500.0f
 
     and [<CasanovaEntity>] p1 = {
          Position : Rule<Vector2<m>>
          Velocity : Rule<Vector2<m/s>>
          Sprite   : DrawableSprite
     } with
-      static member Position'(self:p1,dt:float32<s>) = !self.Position + dt * !self.Velocity
+      static member PositionRule(world:World,self:p1,dt:float32<s>)=
+      if(!self.Position).Y < world.ScreenSize2.Y then
+        Vector2<m>((!self.Position).X,world.ScreenSize2.Y)
+      elif (!self.Position).Y>world.ScreenSize.Y then
+        Vector2<m>((!self.Position).X,world.ScreenSize.Y)
+      else
+        !self.Position + !self.Velocity*dt
+    
+      //static member Position'(self:p1,dt:float32<s>) = !self.Position + dt * !self.Velocity
       static member Velocity'(self:p1,dt:float32<s>) = !self.Velocity * 0.9f
       static member SpritePosition'(self:p1) = !self.Position * 1.0f<pixel/m>
       static member ScreenSize = Vector2<m>.One * 500.0f
@@ -38,25 +50,40 @@ open Casanova.StandardLibrary.Core
          Velocity : Rule<Vector2<m/s>>
          Sprite   : DrawableSprite
     } with
-      static member Position'(self:p2,dt:float32<s>) = !self.Position + dt * !self.Velocity
+      static member PositionRule(world:World,self:p2,dt:float32<s>)=
+      if(!self.Position).Y<world.ScreenSize2.Y then
+        Vector2<m>((!self.Position).X,world.ScreenSize2.Y)
+      elif (!self.Position).Y>world.ScreenSize.Y then
+        Vector2<m>((!self.Position).X,world.ScreenSize.Y)
+      else
+        !self.Position + !self.Velocity*dt
       static member Velocity'(self:p2,dt:float32<s>) = !self.Velocity * 0.9f
       static member SpritePosition'(self:p2) = !self.Position * 1.0f<pixel/m>
       static member ScreenSize = Vector2<m>.One * 500.0f
 
   and [<CasanovaEntity>] ball = {
     Position: Rule<Vector2<m>>
-    Velocity: Rule<Vector2<m/s>>
     Life : Var<float32>
     Sprite : DrawableSprite
+    Velocity: Rule<Vector2<m/s>>
+
   } with
-    static member Position'(self:ball,dt:float32<s>) = !self.Position
-    static member Velocity'(world:World,self:ball,dt:float32<s>) = 
-      if (!self.Position).X > world.ScreenSize.X || (!self.Position).X < -world.ScreenSize.X then
-        Vector2<m/s>(-(!self.Velocity).X, (!self.Velocity).Y)
-      else
-        !self.Velocity
+    //static member Position'(self:ball,dt:float32<s>) = !self.Position + dt * Vector2<m/s>.UnitY * 300.0f
     static member SpritePosition'(self:ball) = !self.Position * 1.0f<pixel/m>
-    
+    static member VelocityRule(world:World,self:ball,dt:float32<s>) = 
+    if (!self.Position).Y > world.ScreenSize.Y then
+      Vector2<m/s>((!self.Velocity).X, -(!self.Velocity).Y)
+    else
+      !self.Velocity
+        
+    static member SpritePositionRule(self:ball,dt:float32<s>) = 
+       !self.Position * Vector2<pixel/m>.One
+
+    static member PositionRule(world:World,self:ball,dt:float32<s>) = 
+    if (!self.Position).Y > world.ScreenSize.Y then
+      Vector2<m>((!self.Position).X, world.ScreenSize.Y )
+    else
+      !self.Position + !self.Velocity * dt * 100.0f
    //ADDED THE WALLS HERE
    and [<CasanovaEntity>] wall = {
         Position : Rule<Vector2<m>>
@@ -105,9 +132,9 @@ open Casanova.StandardLibrary.Core
       ball = 
       {
           Position = Rule.Create(Vector2<m>(0.0f<m>, 0.0f<m>))
-          Velocity = Rule.Create(Vector2<m/s>(1.0f<m/s>, 0.0f<m/s>))
           Sprite   = DrawableSprite.Create(game.default_layer, Vector2<pixel>.One, Vector2<pixel>.One * 40.0f, @"ball")
           Life = Var.Create(1.0f)
+          Velocity = Rule.Create(Vector2<m/s>(1.0f<m/s>, 0.0f<m/s>))
       }
     }
   let inline (!) x = immediate_lookup x
