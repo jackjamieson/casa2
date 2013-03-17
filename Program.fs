@@ -27,6 +27,8 @@ open Casanova.StandardLibrary.Core
    ////////////////////////
      member world.ScreenSize = Vector2<m>.One * 500.0f
      member world.ScreenSize2 = Vector2<m>.One * -500.0f
+    // member world.p2Size = Vector2<m>(450.0f<m>, 0.0f<m>)
+
 
 
    //Paddle 1
@@ -35,7 +37,6 @@ open Casanova.StandardLibrary.Core
          Position : Rule<Vector2<m>>
          Velocity : Rule<Vector2<m/s>>
          Sprite   : DrawableSprite
-//         DestroyBall : DestroyBall
 
     } with
       static member PositionRule(world:World,self:p1,dt:float32<s>)=
@@ -60,6 +61,7 @@ open Casanova.StandardLibrary.Core
          Position : Rule<Vector2<m>>
          Velocity : Rule<Vector2<m/s>>
          Sprite   : DrawableSprite
+        // DestroyBall2 : DestroyBall2
     } with
       static member PositionRule(world:World,self:p2,dt:float32<s>)=
       if(!self.Position).Y<world.ScreenSize2.Y then
@@ -71,6 +73,7 @@ open Casanova.StandardLibrary.Core
       static member Velocity'(self:p2,dt:float32<s>) = !self.Velocity * 0.9f
       static member SpritePosition'(self:p2) = !self.Position * 1.0f<pixel/m>
       static member ScreenSize = Vector2<m>.One * 500.0f
+     //static member DestroyBallRule(world:World, dt:float32<s>)
 
     /////////////////////////////////////////////////////////////////////////
 
@@ -93,6 +96,17 @@ open Casanova.StandardLibrary.Core
       Vector2<m/s>((!self.Velocity).X, -(!self.Velocity).Y)
     elif (!self.Position).Y < world.ScreenSize2.Y then
       Vector2<m/s>((!self.Velocity).X, -(!self.Velocity).Y)
+
+    elif (!self.Position).X > (world.p2.Position.Value.X) && (!self.Position).Y > (world.p2.Position.Value.Y) then //|| (!self.Position).Y >= world.p2.Position.Value.Y + 30.0f<m> || (!self.Position).Y <= world.p2.Position.Value.Y - 30.0f<m>) then
+     Vector2<m/s>(-(!self.Velocity).X, (!self.Velocity).Y)
+    elif (!self.Position).X < world.p1.Position.Value.X && (!self.Position).Y < world.p1.Position.Value.Y then
+     Vector2<m/s>(-(!self.Velocity).X, (!self.Velocity).Y)
+
+    elif (!self.Position).X.Equals(world.p2.Position.Value.X) && (!self.Position).Y > (world.p2.Position.Value.Y) then //|| (!self.Position).Y >= world.p2.Position.Value.Y + 30.0f<m> || (!self.Position).Y <= world.p2.Position.Value.Y - 30.0f<m>) then
+     Vector2<m/s>((!self.Velocity).X, (!self.Velocity).Y)
+    elif (!self.Position).X.Equals(world.p1.Position.Value.X) && (!self.Position).Y < world.p1.Position.Value.Y then
+     Vector2<m/s>((!self.Velocity).X, (!self.Velocity).Y)
+
     else
       !self.Velocity
 
@@ -111,8 +125,20 @@ open Casanova.StandardLibrary.Core
       Vector2<m>(0.0f<m>, 0.0f<m>)
     elif (!self.Position).X > world.ScreenSize.X then
       Vector2<m>(0.0f<m>, 0.0f<m>)
+
+    elif (!self.Position).X > world.p2.Position.Value.X then
+     Vector2<m>(world.p2.Position.Value.X, self.Position.Value.Y)
+    elif (!self.Position).X < world.p1.Position.Value.X then
+     Vector2<m>(world.p1.Position.Value.X, self.Position.Value.Y)
+
+//    elif (!self.Position).X.Equals(world.p2.Position.Value.X) then
+//     Vector2<m>((self.Position.Value.X), self.Position.Value.Y)
+//    elif (!self.Position).X < world.p1.Position.Value.X then
+//     Vector2<m>(self.Position.Value.X, self.Position.Value.Y)
+
     else
-      !self.Position + !self.Velocity * dt * 200.0f
+      !self.Position + !self.Velocity * dt * 150.0f
+
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -125,10 +151,6 @@ open Casanova.StandardLibrary.Core
     } with
     static member Position'(self:wall, dt:float32<s>) = !self.Position
     static member SpritePosition'(self:wall) = !self.Position * 1.0f<pixel/m>
-
-//   and [< Action.Action(Target = "ball");
-//       Action.Transfer(Operation = Action.Operation.Set, From = "", To = "Velocity");
-//       Action.Radius(25.0f) >] DestroyBall = DestroyBall
 
    and [<CasanovaEntity>] wall2 = {
         Position : Rule<Vector2<m>>
@@ -149,7 +171,7 @@ open Casanova.StandardLibrary.Core
           Position = Rule.Create(Vector2<m>(-450.0f<m>, 0.0f<m>))
           Velocity = Rule.Create(Vector2<m/s>.Zero)
           Sprite   = DrawableSprite.Create(game.default_layer, Vector2<pixel>.One, Vector2<pixel>.One * 200.0f, @"p1")   
-//          DestroyBall = DestroyBall
+         // DestroyBall = DestroyBall
         }
 
       p2 = 
@@ -157,6 +179,7 @@ open Casanova.StandardLibrary.Core
           Position = Rule.Create(Vector2<m>(450.0f<m>, 0.0f<m>))
           Velocity = Rule.Create(Vector2<m/s>.Zero)
           Sprite   = DrawableSprite.Create(game.default_layer, Vector2<pixel>.One, Vector2<pixel>.One * 200.0f, @"p2")
+          //DestroyBall2 = DestroyBall2
         }
 
       wall = 
@@ -175,9 +198,9 @@ open Casanova.StandardLibrary.Core
       ball = 
       {
           Position = Rule.Create(Vector2<m>(0.0f<m>, 0.0f<m>))
-          Sprite   = DrawableSprite.Create(game.default_layer, Vector2<pixel>.One, Vector2<pixel>.One * 40.0f, @"ball")
+          Sprite   = DrawableSprite.Create(game.default_layer, Vector2<pixel>.One, Vector2<pixel>.One * 30.0f, @"ball")
           Life = Var.Create(1.0f)
-          Velocity = Rule.Create(Vector2<m/s>(1.0f<m/s>, 5.0f<m/s>))
+          Velocity = Rule.Create(Vector2<m/s>(1.0f<m/s>, 3.0f<m/s>))
       }
     }
   let inline (!) x = immediate_lookup x
@@ -198,6 +221,6 @@ open Casanova.StandardLibrary.Core
 
 [<EntryPoint>]
 let main argv = 
-  use game = Game.Create(start_game, 1024, 600, false)
+  use game = Game.Create(start_game, 1024, 600, false, "Pong in Casanova!")
   game.Run()
   0
