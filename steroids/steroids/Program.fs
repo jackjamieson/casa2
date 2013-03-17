@@ -39,7 +39,7 @@ open Casanova.StandardLibrary.Core
         let tempscore = world.left.Value
         //let tempscore2 = 1
 
-        if   world.ball.Position.Value.X > (world.wall.Position.Value.X) && world.ball.Position.Value.X < (world.wall.Position.Value.X + 1.8f<m>) then !world.left + 1
+        if   world.ball.Position.Value.X > (world.wall.Position.Value.X - 1.25f<m>) && world.ball.Position.Value.X < (world.wall.Position.Value.X + 2.05f<m>) then !world.left + 1
         else !world.left + 0
 
        // let temp2 = world.left
@@ -49,7 +49,7 @@ open Casanova.StandardLibrary.Core
         //if !world.ball.Position.X < world.ScreenSize2.X then world.left
 
      static member rightRule(world:World,dt:float32<s>) = 
-        if world.ball.Position.Value.X < world.wall2.Position.Value.X && world.ball.Position.Value.X > (world.wall2.Position.Value.X - 1.8f<m>) then !world.right + 1
+        if world.ball.Position.Value.X < world.wall2.Position.Value.X + 1.25f<m> && world.ball.Position.Value.X > (world.wall2.Position.Value.X - 2.05f<m>) then !world.right + 1
         else !world.right + 0
 
     // member world.p2Size = Vector2<m>(450.0f<m>, 0.0f<m>)
@@ -123,7 +123,7 @@ open Casanova.StandardLibrary.Core
       Vector2<m/s>((!self.Velocity).X, -(!self.Velocity).Y)
 
     elif (!self.Position).X > (world.p2.Position.Value.X) && ((!self.Position).Y < world.p2.Position.Value.Y + 100.0f<m> && (!self.Position).Y > world.p2.Position.Value.Y - 100.0f<m>) then
-     Vector2<m/s>(-(!self.Velocity).X, (!self.Velocity).Y)
+     Vector2<m/s>(-(!self.Velocity).X, (!self.Velocity).Y)//This is the one for the area of the 
     elif (!self.Position).X < world.p1.Position.Value.X && ((!self.Position).Y < world.p1.Position.Value.Y + 100.0f<m> && (!self.Position).Y > world.p1.Position.Value.Y - 100.0f<m>) then
      Vector2<m/s>(-(!self.Velocity).X, (!self.Velocity).Y)
 
