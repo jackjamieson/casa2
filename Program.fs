@@ -78,6 +78,7 @@ open Casanova.StandardLibrary.Core
     /////////////////////////////////////////////////////////////////////////
 
 
+
     //Ball entity
     /////////////////////////
   and [<CasanovaEntity>] ball = {
@@ -97,15 +98,15 @@ open Casanova.StandardLibrary.Core
     elif (!self.Position).Y < world.ScreenSize2.Y then
       Vector2<m/s>((!self.Velocity).X, -(!self.Velocity).Y)
 
-    elif (!self.Position).X > (world.p2.Position.Value.X) && (!self.Position).Y > (world.p2.Position.Value.Y) then //|| (!self.Position).Y >= world.p2.Position.Value.Y + 30.0f<m> || (!self.Position).Y <= world.p2.Position.Value.Y - 30.0f<m>) then
+    elif (!self.Position).X > (world.p2.Position.Value.X) && ((!self.Position).Y < world.p2.Position.Value.Y + 100.0f<m> && (!self.Position).Y > world.p2.Position.Value.Y - 100.0f<m>) then
      Vector2<m/s>(-(!self.Velocity).X, (!self.Velocity).Y)
-    elif (!self.Position).X < world.p1.Position.Value.X && (!self.Position).Y < world.p1.Position.Value.Y then
+    elif (!self.Position).X < world.p1.Position.Value.X && ((!self.Position).Y < world.p1.Position.Value.Y + 100.0f<m> && (!self.Position).Y > world.p1.Position.Value.Y - 100.0f<m>) then
      Vector2<m/s>(-(!self.Velocity).X, (!self.Velocity).Y)
 
-    elif (!self.Position).X.Equals(world.p2.Position.Value.X) && (!self.Position).Y > (world.p2.Position.Value.Y) then //|| (!self.Position).Y >= world.p2.Position.Value.Y + 30.0f<m> || (!self.Position).Y <= world.p2.Position.Value.Y - 30.0f<m>) then
-     Vector2<m/s>((!self.Velocity).X, (!self.Velocity).Y)
-    elif (!self.Position).X.Equals(world.p1.Position.Value.X) && (!self.Position).Y < world.p1.Position.Value.Y then
-     Vector2<m/s>((!self.Velocity).X, (!self.Velocity).Y)
+//    elif (!self.Position).X > (world.p2.Position.Value.X) && (!self.Position).Y <= (world.p2.Position.Value.Y) || (!self.Position).Y >= world.p2.Position.Value.Y + 30.0f<m> || (!self.Position).Y <= world.p2.Position.Value.Y - 30.0f<m>) then
+//     Vector2<m/s>((!self.Velocity).X, (!self.Velocity).Y)
+//    elif (!self.Position).X < (world.p1.Position.Value.X) && (!self.Position).Y <= world.p1.Position.Value.Y then
+//     Vector2<m/s>((!self.Velocity).X, (!self.Velocity).Y)
 
     else
       !self.Velocity
@@ -126,12 +127,17 @@ open Casanova.StandardLibrary.Core
     elif (!self.Position).X > world.ScreenSize.X then
       Vector2<m>(0.0f<m>, 0.0f<m>)
 
-    elif (!self.Position).X > world.p2.Position.Value.X then
+    elif (!self.Position).X > world.p2.Position.Value.X && ((!self.Position).Y > world.p2.Position.Value.Y + 100.0f<m> && (!self.Position).Y < world.p2.Position.Value.Y - 100.0f<m>)then
+     Vector2<m>(self.Position.Value.X, self.Position.Value.Y)
+    elif (!self.Position).X > world.p2.Position.Value.X && ((!self.Position).Y < world.p2.Position.Value.Y + 100.0f<m> && (!self.Position).Y > world.p2.Position.Value.Y - 100.0f<m>)then
      Vector2<m>(world.p2.Position.Value.X, self.Position.Value.Y)
-    elif (!self.Position).X < world.p1.Position.Value.X then
+
+    elif (!self.Position).X < world.p1.Position.Value.X && ((!self.Position).Y > world.p1.Position.Value.Y + 100.0f<m> && (!self.Position).Y < world.p1.Position.Value.Y - 100.0f<m>)then
+     Vector2<m>(self.Position.Value.X, self.Position.Value.Y)
+    elif (!self.Position).X < world.p1.Position.Value.X && ((!self.Position).Y < world.p1.Position.Value.Y + 100.0f<m> && (!self.Position).Y > world.p1.Position.Value.Y - 100.0f<m>)then
      Vector2<m>(world.p1.Position.Value.X, self.Position.Value.Y)
 
-//    elif (!self.Position).X.Equals(world.p2.Position.Value.X) then
+//    elif (!self.Position).X > (world.p2.Position.Value.X) then
 //     Vector2<m>((self.Position.Value.X), self.Position.Value.Y)
 //    elif (!self.Position).X < world.p1.Position.Value.X then
 //     Vector2<m>(self.Position.Value.X, self.Position.Value.Y)
