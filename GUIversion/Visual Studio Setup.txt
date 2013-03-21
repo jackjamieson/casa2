@@ -1,0 +1,5 @@
+In order to resolve pathing issues, please do the following steps to create a working version of GUIPong for your machine.
+
+1. Create a new Solution in Visual Studio
+2. Add The Projects in this folder to the solution
+3. Resolve any pathing issues.
