@@ -8,3 +8,5 @@ In order to run this sample game you need Visual Studio.  If you open up the sol
 - CasanovaPrelude is a required project.
 - Game code is in Pong/pong/Program.fs
 - MenuUtils is not currently needed, it is for future developments.
+
+GUIVersion is an experiment by Sean with the Casanova launcher - it is not required.
